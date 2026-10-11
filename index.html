@@ -4,833 +4,1107 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ScaleScout 是音樂人的快速和聲夥伴，可用級數或根音查找和弦、查看組成音，並快速建立和弦進行。">
+  <meta name="theme-color" content="#F6F2EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151416" media="(prefers-color-scheme: dark)">
   <title>ScaleScout｜音樂人的快速和聲夥伴</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #f7fbff;
-      --ink-soft: #d8e3e8;
-      --muted: #8f9ca6;
-      --line: rgba(255, 255, 255, .12);
-      --surface: #02070a;
-      --surface-soft: #071117;
-      --surface-lift: #0d1820;
-      --dark-ink: #05090c;
-      --cyan: #7fdcf0;
-      --cyan-strong: #04b8dc;
-      --orange: #ff8a22;
-      --purple: #6654ef;
-      --red: #ff5562;
-      --blue: #0b89ff;
-      --max: 1180px;
+      color-scheme: light dark;
+
+      --app-bg: #F6F2EC;
+      --panel: #EEE8DF;
+      --surface: #FFFFFF;
+      --text: #22201E;
+      --text-2: #6E675F;
+      --text-3: #8A8279;
+      --root: #B9533A;
+      --tone: #437C61;
+      --ext: #C99A4E;
+      --non-diatonic: #5A7896;
+      --danger: #B0413A;
+      --accent-tint: #F2DFD7;
+      --on-accent: #FFFFFF;
+      --on-ext: #2A2116;
+      --line: rgba(34, 32, 30, .1);
+      --wheel-pill: rgba(34, 32, 30, .07);
+      --slot-border: #ECD5CB;
+      --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 12px 32px rgba(60, 40, 20, .08);
+      --shadow-lift: 0 2px 4px rgba(60, 40, 20, .06), 0 30px 60px rgba(60, 40, 20, .16);
+
+      --icon-root: #E07A5F;
+      --icon-third: #81B29A;
+      --icon-fifth: #F2CC8F;
+
+      --font-display: ui-rounded, "SF Pro Rounded", "Nunito", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+      --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Noto Sans TC", "Segoe UI", system-ui, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+      --max: 1160px;
+      --gutter: 24px;
+      --radius: 20px;
       --ease: cubic-bezier(.2, .8, .2, 1);
+      --spring: cubic-bezier(.34, 1.56, .64, 1);
     }
 
-    * {
-      box-sizing: border-box;
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --app-bg: #151416;
+        --panel: #262428;
+        --surface: #1F1D21;
+        --text: #F2EDE6;
+        --text-2: #B0A89E;
+        --text-3: #7C756D;
+        --root: #E3836A;
+        --tone: #8CC2A6;
+        --ext: #EBC98E;
+        --non-diatonic: #93AFCF;
+        --danger: #E06A5E;
+        --accent-tint: #3A2A26;
+        --on-accent: #1A1715;
+        --on-ext: #1A1715;
+        --line: rgba(242, 237, 230, .1);
+        --wheel-pill: rgba(242, 237, 230, .08);
+        --slot-border: #4A3631;
+        --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px rgba(0, 0, 0, .3);
+        --shadow-lift: 0 2px 4px rgba(0, 0, 0, .3), 0 30px 60px rgba(0, 0, 0, .45);
+      }
     }
 
-    html {
-      scroll-behavior: smooth;
+    :root[data-theme="dark"],
+    .always-dark {
+      --app-bg: #151416;
+      --panel: #262428;
+      --surface: #1F1D21;
+      --text: #F2EDE6;
+      --text-2: #B0A89E;
+      --text-3: #7C756D;
+      --root: #E3836A;
+      --tone: #8CC2A6;
+      --ext: #EBC98E;
+      --non-diatonic: #93AFCF;
+      --danger: #E06A5E;
+      --accent-tint: #3A2A26;
+      --on-accent: #1A1715;
+      --on-ext: #1A1715;
+      --line: rgba(242, 237, 230, .1);
+      --wheel-pill: rgba(242, 237, 230, .08);
+      --slot-border: #4A3631;
     }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      background: var(--surface);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Noto Sans TC", "PingFang TC", "Segoe UI", sans-serif;
-      line-height: 1.55;
+      background: var(--app-bg);
+      color: var(--text);
+      font-family: var(--font-text);
+      line-height: 1.6;
       text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; height: auto; }
+    button { font: inherit; color: inherit; }
 
-    img {
-      display: block;
-      max-width: 100%;
+    :focus-visible {
+      outline: 3px solid var(--root);
+      outline-offset: 3px;
+      border-radius: 10px;
     }
 
     .skip-link {
       position: absolute;
       left: 16px;
       top: 16px;
-      transform: translateY(-140%);
-      background: white;
-      color: var(--dark-ink);
+      transform: translateY(-160%);
+      background: var(--surface);
+      color: var(--text);
       padding: 10px 14px;
-      border-radius: 6px;
-      z-index: 20;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      z-index: 30;
       transition: transform .2s var(--ease);
     }
 
-    .skip-link:focus {
-      transform: translateY(0);
+    .skip-link:focus { transform: translateY(0); }
+
+    .wrap {
+      width: 100%;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
     }
 
+    /* Chord mark: root, third, fifth stacked on the diagonal, like the app icon */
+    .mark { display: block; overflow: visible; }
+    .mark .d-root { fill: var(--root); }
+    .mark .d-third { fill: var(--tone); }
+    .mark .d-fifth { fill: var(--ext); }
+    .mark circle { fill-opacity: .9; }
+
+    /* Navigation */
     .nav {
       position: sticky;
       top: 0;
-      z-index: 10;
-      border-bottom: 1px solid var(--line);
-      background: rgba(2, 7, 10, .82);
-      backdrop-filter: blur(18px);
+      z-index: 20;
+      background: color-mix(in srgb, var(--app-bg) 84%, transparent);
+      backdrop-filter: saturate(1.4) blur(18px);
+      -webkit-backdrop-filter: saturate(1.4) blur(18px);
+      border-bottom: 1px solid transparent;
+      transition: border-color .3s var(--ease);
     }
 
+    .nav.scrolled { border-bottom-color: var(--line); }
+
     .nav-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 14px 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      min-height: 64px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 760;
-      letter-spacing: 0;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -.01em;
     }
 
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      background: var(--ink);
-    }
+    .brand .mark { width: 30px; height: 30px; }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 6px;
       font-size: 14px;
-      color: var(--muted);
-      font-weight: 650;
+      font-weight: 600;
     }
 
-    .nav-links a:hover {
-      color: var(--ink);
+    .nav-links .text-link {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--text-2);
+      transition: color .2s var(--ease), background .2s var(--ease);
     }
+
+    .nav-links .text-link:hover {
+      color: var(--text);
+      background: var(--wheel-pill);
+    }
+
+    .chip-button {
+      appearance: none;
+      border: 0;
+      min-width: 44px;
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .2s var(--ease), background .2s var(--ease);
+    }
+
+    .chip-button:hover { transform: translateY(-1px); }
 
     .nav-cta {
-      color: var(--dark-ink);
-      background: white;
-      padding: 9px 13px;
-      border-radius: 8px;
-      box-shadow: 0 12px 26px rgba(0, 0, 0, .35);
-    }
-
-    .language-toggle {
-      appearance: none;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, .06);
-      color: var(--ink);
-      min-height: 36px;
-      padding: 8px 11px;
-      border-radius: 8px;
-      font: inherit;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: background .2s var(--ease), transform .2s var(--ease);
-    }
-
-    .language-toggle:hover {
-      background: rgba(255, 255, 255, .1);
-      transform: translateY(-1px);
-    }
-
-    .hero {
-      min-height: calc(100svh - 64px);
-      display: grid;
+      display: inline-flex;
       align-items: center;
+      min-height: 38px;
+      padding: 0 16px;
+      border-radius: 12px;
+      background: var(--root);
+      color: var(--on-accent);
+      font-weight: 700;
+      margin-left: 4px;
+      transition: transform .2s var(--ease), filter .2s var(--ease);
+    }
+
+    .nav-cta:hover { transform: translateY(-1px); filter: brightness(1.06); }
+
+    /* Hero */
+    .hero {
+      position: relative;
       overflow: hidden;
-      background:
-        radial-gradient(circle at 72% 10%, rgba(127, 220, 240, .22), transparent 26rem),
-        radial-gradient(circle at 14% 74%, rgba(102, 84, 239, .16), transparent 24rem),
-        linear-gradient(180deg, #02070a 0%, #071017 72%, #02070a 100%);
+      padding: 56px 0 88px;
     }
 
     .hero-inner {
-      width: 100%;
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 58px 22px 42px;
       display: grid;
-      grid-template-columns: minmax(0, .96fr) minmax(360px, .84fr);
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
       align-items: center;
-      gap: 42px;
+      gap: 48px;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      color: var(--ink-soft);
-      font-size: 14px;
-      font-weight: 760;
-      margin-bottom: 18px;
+      padding: 6px 14px 6px 8px;
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 24px;
     }
 
-    .eyebrow::before {
-      content: "";
-      flex: 0 0 46px;
-      width: 46px;
+    .dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .dots i {
+      width: 10px;
       height: 10px;
-      background:
-        radial-gradient(circle at 5px 5px, var(--orange) 0 5px, transparent 5.5px),
-        radial-gradient(circle at 23px 5px, var(--cyan-strong) 0 5px, transparent 5.5px),
-        radial-gradient(circle at 41px 5px, var(--purple) 0 5px, transparent 5.5px);
+      border-radius: 50%;
+      background: var(--root);
+    }
+
+    .dots i:nth-child(2) { background: var(--tone); }
+    .dots i:nth-child(3) { background: var(--ext); }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      letter-spacing: -.02em;
+      text-wrap: balance;
     }
 
     h1 {
       margin: 0;
-      max-width: 740px;
-      font-size: clamp(48px, 8vw, 104px);
-      line-height: .92;
-      letter-spacing: 0;
-      text-wrap: pretty;
+      font-size: clamp(46px, 7.4vw, 92px);
+      font-weight: 900;
+      line-height: 1;
     }
 
     html[lang="zh-Hant"] h1 {
-      max-width: 660px;
-      font-size: clamp(44px, 6.8vw, 84px);
-      line-height: 1.06;
+      font-size: clamp(44px, 6.4vw, 80px);
+      line-height: 1.12;
+      letter-spacing: 0;
     }
 
+    h1 .accent { color: var(--root); }
+
     .hero-copy {
-      max-width: 610px;
+      max-width: 560px;
       margin: 24px 0 0;
-      color: var(--ink-soft);
-      font-size: clamp(18px, 2vw, 22px);
+      color: var(--text-2);
+      font-size: clamp(17px, 1.8vw, 20px);
       text-wrap: pretty;
     }
 
     .actions {
-      margin-top: 34px;
+      margin-top: 32px;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      align-items: center;
     }
 
     .button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 48px;
-      padding: 13px 18px;
-      border-radius: 8px;
-      font-weight: 760;
-      transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+      gap: 8px;
+      min-height: 52px;
+      padding: 0 22px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 16px;
+      transition: transform .2s var(--ease), box-shadow .2s var(--ease), filter .2s var(--ease);
     }
 
-    .button:hover {
-      transform: translateY(-2px);
-    }
+    .button:hover { transform: translateY(-2px); }
 
     .button.primary {
-      color: var(--dark-ink);
-      background: white;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, .32);
+      background: var(--root);
+      color: var(--on-accent);
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--root) 32%, transparent);
     }
+
+    .button.primary:hover { filter: brightness(1.05); }
 
     .button.secondary {
-      background: rgba(255, 255, 255, .06);
-      border: 1px solid var(--line);
-      color: var(--ink-soft);
+      background: var(--panel);
+      color: var(--text);
     }
 
-    .button.primary::after,
-    .button.secondary::after {
-      content: "↗";
-      margin-left: 8px;
-      font-size: 16px;
-      line-height: 1;
-    }
+    .button svg { width: 18px; height: 18px; }
 
     .quick-facts {
-      margin-top: 36px;
+      margin-top: 40px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0;
-      max-width: 650px;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
+      gap: 12px;
+      max-width: 600px;
     }
 
     .fact {
-      padding: 18px 18px 18px 0;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
       min-width: 0;
-    }
-
-    .fact + .fact {
-      padding-left: 18px;
-      border-left: 1px solid var(--line);
     }
 
     .fact strong {
       display: block;
+      font-family: var(--font-display);
       font-size: 15px;
-      color: var(--ink);
+      font-weight: 800;
+      line-height: 1.3;
     }
 
     .fact span {
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
       font-size: 13px;
-      color: var(--muted);
+      line-height: 1.45;
+      color: var(--text-2);
     }
 
     .hero-visual {
       position: relative;
-      min-height: 620px;
       display: grid;
       place-items: center;
+      min-height: 600px;
     }
 
-    .hero-logo {
+    .hero-mark {
       position: absolute;
-      top: 4px;
-      right: 18px;
-      width: 92px;
-      height: 92px;
-      border-radius: 20px;
-      box-shadow: 0 28px 60px rgba(0, 0, 0, .52);
-      z-index: 3;
+      width: min(118%, 640px);
+      height: auto;
+      opacity: .3;
     }
 
-    .phone-stack {
+    .hero-mark circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: disc-pop .7s var(--spring) both;
+    }
+
+    .hero-mark .d-third { animation-delay: .18s; }
+    .hero-mark .d-fifth { animation-delay: .36s; }
+
+    @keyframes disc-pop {
+      from { transform: scale(.01); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .device {
       position: relative;
-      width: min(82vw, 430px);
-      aspect-ratio: 1290 / 2796;
+      width: min(78vw, 330px);
+      padding: 9px;
+      border-radius: 54px;
+      background: #1F1D21;
+      box-shadow: var(--shadow-lift), inset 0 0 0 1.5px rgba(255, 255, 255, .08);
     }
 
-    .phone-shot {
-      position: absolute;
-      inset: 0;
+    .device img {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 34px 44px rgba(5, 9, 12, .22));
-      transform-origin: center bottom;
+      border-radius: 45px;
+      background: #F6F2EC;
     }
 
-    .phone-shot.back {
-      transform: translate(-116px, 38px) rotate(-7deg) scale(.86);
-      opacity: .92;
-      filter: drop-shadow(0 24px 36px rgba(0, 0, 0, .36));
+    .device.small {
+      width: 100%;
+      padding: 7px;
+      border-radius: 40px;
     }
 
-    .phone-shot.front {
-      transform: translate(36px, 0) rotate(3deg);
+    .device.small img { border-radius: 33px; }
+
+    .float-card {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow-lift);
+      font-family: var(--font-display);
+      font-weight: 800;
+      animation: float 6s ease-in-out infinite;
     }
 
-    .section {
-      padding: 92px 22px;
-      border-top: 1px solid var(--line);
+    .float-card small {
+      display: block;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text-2);
     }
 
-    .section.dark {
-      background:
-        radial-gradient(circle at 8% 20%, rgba(127, 220, 240, .14), transparent 24rem),
-        #02070a;
-      color: var(--ink);
-      border-top: 0;
+    .float-card .note {
+      width: 34px;
+      height: 34px;
+      font-size: 14px;
     }
 
-    .section.soft {
-      background: var(--surface-soft);
+    .float-card.one { left: -4px; top: 22%; }
+    .float-card.two { right: -8px; bottom: 18%; animation-delay: -3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
-    .section-inner {
-      max-width: var(--max);
-      margin: 0 auto;
+    /* Note circles, as in the app */
+    .note {
+      display: inline-grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      font-family: var(--font-text);
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--on-accent);
+      background: var(--root);
+      box-shadow: 0 8px 16px color-mix(in srgb, var(--root) 30%, transparent);
     }
+
+    .note.tone {
+      background: var(--tone);
+      box-shadow: 0 8px 16px color-mix(in srgb, var(--tone) 30%, transparent);
+    }
+
+    .note.ext {
+      background: var(--ext);
+      color: var(--on-ext);
+      box-shadow: 0 8px 16px color-mix(in srgb, var(--ext) 30%, transparent);
+    }
+
+    /* Sections */
+    .section { padding: 104px 0; }
+    .section.panel { background: var(--panel); }
 
     .section-head {
       display: grid;
-      grid-template-columns: minmax(0, .75fr) minmax(280px, .55fr);
-      gap: 36px;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .7fr);
+      gap: 40px;
       align-items: end;
-      margin-bottom: 44px;
+      margin-bottom: 48px;
     }
+
+    .section-head.center {
+      grid-template-columns: 1fr;
+      text-align: center;
+      justify-items: center;
+      gap: 16px;
+    }
+
+    .section-head.center .section-lede { max-width: 620px; }
 
     .kicker {
-      margin: 0 0 10px;
-      color: var(--cyan-strong);
-      font-size: 13px;
-      font-weight: 820;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .section.dark .kicker {
-      color: var(--cyan);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: var(--root);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .02em;
     }
 
     h2 {
       margin: 0;
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: 1;
+      font-size: clamp(32px, 4.6vw, 56px);
+      font-weight: 900;
+      line-height: 1.08;
+    }
+
+    html[lang="zh-Hant"] h2 {
+      line-height: 1.25;
       letter-spacing: 0;
-      text-wrap: pretty;
     }
 
     .section-lede {
       margin: 0;
-      color: var(--muted);
+      color: var(--text-2);
       font-size: 18px;
       text-wrap: pretty;
     }
 
-    .section.dark .section-lede,
-    .section.dark .feature p,
-    .section.dark .proof-copy {
-      color: rgba(255, 255, 255, .72);
+    /* Playground */
+    .playground {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 760px;
+      margin: 0 auto;
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--app-bg);
+      box-shadow: var(--shadow-lift);
     }
 
+    .section.panel .playground { background: var(--app-bg); }
+
+    .pg-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 24px 20px 0;
+    }
+
+    .key-select {
+      position: relative;
+    }
+
+    .key-select select {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      min-height: 44px;
+      padding: 0 38px 0 18px;
+      border-radius: 14px;
+      background: var(--accent-tint);
+      color: var(--root);
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .key-select::after {
+      content: "";
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      width: 8px;
+      height: 8px;
+      border-right: 2.5px solid var(--root);
+      border-bottom: 2.5px solid var(--root);
+      transform: translateY(-70%) rotate(45deg);
+      pointer-events: none;
+    }
+
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: var(--panel);
+    }
+
+    .segmented button {
+      appearance: none;
+      border: 0;
+      min-width: 84px;
+      min-height: 38px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .25s var(--ease), box-shadow .25s var(--ease);
+    }
+
+    .segmented button[aria-pressed="true"] {
+      background: var(--surface);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 1px var(--line);
+    }
+
+    .pg-display {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      padding: 44px 20px 40px;
+      min-height: 330px;
+      align-content: center;
+    }
+
+    .chord-name {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(72px, 14vw, 120px);
+      line-height: 1;
+      letter-spacing: -.02em;
+      transition: color .3s var(--ease);
+    }
+
+    .chord-roman {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(24px, 4vw, 32px);
+      color: var(--text-2);
+    }
+
+    .note-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 36px;
+      max-width: 340px;
+      min-height: 64px;
+    }
+
+    .note-row .note { animation: note-in .45s var(--spring) both; }
+
+    @keyframes note-in {
+      from { transform: scale(.4); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .pg-panel {
+      padding: 24px 20px 28px;
+      background: var(--panel);
+    }
+
+    .section.panel .pg-panel { background: color-mix(in srgb, var(--panel) 70%, var(--app-bg)); }
+
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) 52px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .slot {
+      appearance: none;
+      display: grid;
+      place-content: center;
+      gap: 2px;
+      min-height: 92px;
+      border: 2px solid var(--slot-border);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 6px 14px rgba(60, 40, 20, .06);
+      cursor: pointer;
+      transition: transform .2s var(--ease), border-color .2s var(--ease);
+    }
+
+    .slot:hover { transform: translateY(-2px); }
+    .slot.active { border-color: var(--root); }
+
+    .slot.empty {
+      border-style: dashed;
+      border-color: var(--line);
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .slot.empty:hover { transform: none; }
+
+    .slot b {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .slot span {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    .slot-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      appearance: none;
+      border: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--root);
+      color: var(--on-accent);
+      cursor: pointer;
+      transition: transform .2s var(--ease), opacity .2s var(--ease);
+    }
+
+    .icon-btn.danger { background: var(--danger); }
+    .icon-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .icon-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .icon-btn svg { width: 22px; height: 22px; }
+
+    .wheel {
+      margin-top: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .wheel-row {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .wheel-row > span {
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .wheel-options {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .wheel-options.ext { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+    .wheel-options button {
+      appearance: none;
+      border: 0;
+      min-height: 42px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-3);
+      font-size: 17px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s var(--ease), color .2s var(--ease);
+    }
+
+    .wheel-options button:hover { color: var(--text); }
+
+    .wheel-options button[aria-pressed="true"] {
+      background: var(--wheel-pill);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .pg-note {
+      margin: 18px 0 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    /* Features */
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      border-top: 1px solid var(--line);
-      border-left: 1px solid var(--line);
+      gap: 16px;
     }
 
     .feature {
-      min-height: 218px;
       padding: 28px;
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, .035);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
     }
 
-    .section.dark .feature-grid {
-      border-color: rgba(255, 255, 255, .14);
+    .feature .note {
+      width: 48px;
+      height: 48px;
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 22px;
     }
 
-    .section.dark .feature {
-      background: rgba(255, 255, 255, .04);
-      border-color: rgba(255, 255, 255, .14);
-    }
-
-    .feature-mark {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      margin-bottom: 20px;
-      color: white;
-      font-weight: 900;
-      font-size: 18px;
-    }
-
-    .feature:nth-child(1) .feature-mark,
-    .feature:nth-child(5) .feature-mark {
-      background: var(--orange);
-    }
-
-    .feature:nth-child(2) .feature-mark,
-    .feature:nth-child(4) .feature-mark {
-      background: var(--cyan-strong);
-    }
-
-    .feature:nth-child(3) .feature-mark,
-    .feature:nth-child(6) .feature-mark {
-      background: var(--purple);
+    .feature .note.blue {
+      background: var(--non-diatonic);
+      color: var(--on-accent);
+      box-shadow: 0 8px 16px color-mix(in srgb, var(--non-diatonic) 30%, transparent);
     }
 
     .feature h3 {
       margin: 0 0 8px;
       font-size: 21px;
-      letter-spacing: 0;
+      font-weight: 800;
     }
 
     .feature p {
       margin: 0;
-      color: var(--muted);
+      color: var(--text-2);
     }
 
-    .mode-showcase {
+    /* Colour legend + steps */
+    .how {
       display: grid;
-      grid-template-columns: minmax(320px, .82fr) minmax(0, 1fr);
-      gap: 48px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+      gap: 56px;
       align-items: center;
     }
 
-    .copy-list {
+    .steps {
       display: grid;
-      gap: 18px;
+      gap: 12px;
+      margin-top: 36px;
     }
 
-    .copy-item {
+    .step {
       display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
+      grid-template-columns: 44px minmax(0, 1fr);
       gap: 16px;
       align-items: start;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, .14);
+      padding: 20px;
+      border-radius: var(--radius);
+      background: var(--surface);
     }
 
-    .copy-item b {
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
-      background: white;
-      color: var(--dark-ink);
-      font-size: 16px;
+    .step .note {
+      width: 44px;
+      height: 44px;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 18px;
     }
 
-    .copy-item h3 {
+    .step h3 {
       margin: 0 0 4px;
-      font-size: 22px;
+      font-size: 20px;
+      font-weight: 800;
     }
 
-    .copy-item p {
+    .step p {
       margin: 0;
-      color: rgba(255, 255, 255, .72);
+      color: var(--text-2);
     }
 
-    .screen-row {
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin-top: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend i {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--root);
+    }
+
+    .legend .l-tone { background: var(--tone); }
+    .legend .l-ext { background: var(--ext); }
+    .legend .l-blue { background: var(--non-diatonic); }
+
+    .screen-pair {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 22px;
-      align-items: end;
+      gap: 20px;
+      align-items: start;
     }
 
-    .screen-row img {
-      width: 100%;
-      border-radius: 26px;
-      filter: drop-shadow(0 22px 34px rgba(0, 0, 0, .38));
-      background: black;
-    }
+    .screen-pair .device:nth-child(2) { margin-top: 72px; }
 
-    .screen-row img:nth-child(2) {
-      margin-top: 80px;
-    }
-
-    .workflow {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr);
-      gap: 48px;
-      align-items: center;
-    }
-
-    .progression-demo {
-      padding: 30px;
-      background: var(--surface-lift);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 22px 50px rgba(0, 0, 0, .28);
-    }
-
-    .progression-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 22px;
-      color: var(--muted);
-      font-weight: 760;
-      font-size: 14px;
-    }
-
-    .progression-slots {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .slot {
-      aspect-ratio: 1.35;
-      border: 2px dashed #d5d8dd;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-weight: 850;
-      font-size: clamp(18px, 3vw, 28px);
-      color: var(--ink);
-      background: rgba(255, 255, 255, .05);
-    }
-
-    .slot.filled {
-      border-style: solid;
-      border-color: transparent;
-      color: var(--dark-ink);
-      background: white;
-      box-shadow: inset 0 -4px 0 rgba(255, 255, 255, .08);
-    }
-
-    .transpose {
-      margin-top: 22px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .transpose-row {
-      display: grid;
-      grid-template-columns: 58px 1fr;
-      gap: 12px;
-      align-items: center;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .mini-chords {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      min-width: 52px;
-      text-align: center;
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: var(--surface-soft);
-      color: var(--ink);
-    }
-
+    /* Gallery */
     .gallery {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
-      align-items: end;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 20px;
     }
 
-    .gallery figure {
-      margin: 0;
-    }
+    .gallery figure { margin: 0; }
 
-    .gallery img {
-      width: 100%;
-      border-radius: 24px;
-      background: black;
-      filter: drop-shadow(0 24px 30px rgba(0, 0, 0, .38));
-      transition: transform .25s var(--ease), filter .25s var(--ease);
-    }
-
-    .gallery figure:hover img {
-      transform: translateY(-6px);
-      filter: drop-shadow(0 28px 38px rgba(0, 0, 0, .44));
-    }
+    .gallery .device { transition: transform .3s var(--ease); }
+    .gallery figure:hover .device { transform: translateY(-6px); }
 
     .gallery figcaption {
-      margin-top: 14px;
+      margin-top: 16px;
+      font-family: var(--font-display);
       font-weight: 800;
-      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.4;
+      text-align: center;
     }
 
+    /* Audience */
     .audience-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 1px;
-      background: var(--line);
-      border: 1px solid var(--line);
+      gap: 12px;
     }
 
     .audience {
-      min-height: 150px;
       padding: 22px;
-      background: rgba(255, 255, 255, .035);
+      border-radius: var(--radius);
+      background: var(--surface);
     }
 
     .audience strong {
       display: block;
+      font-family: var(--font-display);
       font-size: 18px;
-      margin-bottom: 8px;
+      font-weight: 800;
+      margin-bottom: 6px;
     }
 
     .audience span {
-      color: var(--muted);
+      color: var(--text-2);
       font-size: 14px;
     }
 
-    .footer-cta {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 28px;
-      align-items: center;
-      padding: 54px 0 36px;
+    /* Footer, always on the icon's charcoal */
+    .footer {
+      padding: 104px 0 40px;
+      background: linear-gradient(180deg, #2C2A2F 0%, #121114 100%);
+      color: var(--text);
     }
 
-    .footer-cta h2 {
-      max-width: 760px;
+    .footer-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 400px);
+      gap: 48px;
+      align-items: center;
     }
+
+    .footer-mark {
+      width: 100%;
+      height: auto;
+    }
+
+    .footer-mark .d-root { fill: var(--icon-root); }
+    .footer-mark .d-third { fill: var(--icon-third); }
+    .footer-mark .d-fifth { fill: var(--icon-fifth); }
+
+    .footer-cta { max-width: 640px; }
+
+    .footer-cta h2 { margin-bottom: 32px; }
 
     .footer-links {
-      padding-top: 30px;
-      border-top: 1px solid rgba(255, 255, 255, .16);
+      margin-top: 80px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
       display: flex;
       flex-wrap: wrap;
-      gap: 14px 24px;
-      color: rgba(255, 255, 255, .7);
-      font-weight: 650;
+      gap: 12px 28px;
+      color: var(--text-2);
+      font-weight: 600;
       font-size: 14px;
     }
 
-    .footer-links a:hover {
-      color: white;
-    }
+    .footer-links a:hover { color: var(--text); }
 
     .fine-print {
-      margin: 24px 0 0;
-      color: rgba(255, 255, 255, .48);
+      margin: 20px 0 0;
+      color: var(--text-3);
       font-size: 13px;
     }
 
-    .reveal {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity .6s var(--ease), transform .6s var(--ease);
+    /* Reveal on scroll, only when JS is running */
+    .js .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .7s var(--ease), transform .7s var(--ease);
     }
 
-    .reveal.in {
+    .js .reveal.in {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 1040px) {
+      .gallery {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 12px;
+        margin: 0 calc(var(--gutter) * -1);
+        padding-left: var(--gutter);
+        padding-right: var(--gutter);
+        scroll-padding: 0 var(--gutter);
+      }
+
+      .gallery figure {
+        flex: 0 0 220px;
+        scroll-snap-align: start;
+      }
+
+      .audience-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 920px) {
       .hero-inner,
       .section-head,
-      .mode-showcase,
-      .workflow,
-      .footer-cta {
+      .how,
+      .footer-top {
         grid-template-columns: 1fr;
       }
 
-      .hero {
-        min-height: auto;
-      }
+      .footer-mark { width: 160px; order: -1; }
 
-      .hero-visual {
-        min-height: 540px;
-        align-items: start;
-      }
-
-      .phone-stack {
-        width: min(74vw, 360px);
-      }
-
-      .phone-shot.back {
-        transform: translate(-72px, 38px) rotate(-7deg) scale(.82);
-      }
-
-      .phone-shot.front {
-        transform: translate(42px, 0) rotate(3deg);
-      }
-
-      .hero-logo {
-        top: 0;
-        right: 10%;
-      }
-
-      .feature-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .gallery,
-      .audience-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .hero { padding-top: 36px; }
+      .hero-visual { min-height: 560px; }
+      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-links .text-link { display: none; }
     }
 
-    @media (max-width: 680px) {
-      .nav-inner {
-        padding: 12px 16px;
-      }
+    @media (max-width: 640px) {
+      :root { --gutter: 16px; }
 
-      .nav-links a:not(.nav-cta) {
-        display: none;
-      }
+      .section { padding: 72px 0; }
 
-      .hero-inner {
-        padding: 42px 16px 28px;
-        gap: 28px;
-      }
+      .quick-facts { grid-template-columns: 1fr; }
 
-      html[lang="zh-Hant"] h1 {
-        font-size: clamp(48px, 13.2vw, 72px);
-        line-height: 1.08;
-      }
-
-      .quick-facts {
-        grid-template-columns: 1fr;
-      }
-
-      .fact,
-      .fact + .fact {
-        padding: 14px 0;
-        border-left: 0;
-      }
-
-      .fact + .fact {
-        border-top: 1px solid var(--line);
-      }
-
-      .hero-visual {
-        min-height: 420px;
-        overflow: hidden;
-      }
-
-      .phone-stack {
-        width: min(78vw, 310px);
-      }
-
-      .phone-shot.back {
-        display: none;
-      }
-
-      .phone-shot.front {
-        transform: translate(0, 0) rotate(0deg);
-      }
-
-      .hero-logo {
-        width: 70px;
-        height: 70px;
-        right: 2px;
-      }
-
-      .section {
-        padding: 68px 16px;
-      }
+      .hero-visual { min-height: 480px; }
+      .device { width: min(70vw, 270px); border-radius: 44px; }
+      .device img { border-radius: 36px; }
+      .float-card { padding: 10px 12px; font-size: 14px; }
+      .float-card .note { width: 28px; height: 28px; font-size: 12px; }
+      .float-card.one { left: 0; }
+      .float-card.two { right: 0; }
 
       .feature-grid,
-      .screen-row,
-      .gallery,
-      .audience-grid {
-        grid-template-columns: 1fr;
-      }
+      .audience-grid { grid-template-columns: 1fr; }
 
-      .feature {
-        min-height: auto;
-        padding: 24px;
-      }
+      .feature { padding: 22px; }
 
-      .screen-row img:nth-child(2) {
-        margin-top: 0;
-      }
+      .playground { border-radius: 24px; }
+      .pg-display { min-height: 280px; padding: 32px 12px; }
+      .note { width: 52px; height: 52px; font-size: 18px; }
+      .note-row { gap: 10px; }
+      .pg-panel { padding: 18px 12px 22px; }
+      .slots { grid-template-columns: repeat(4, minmax(0, 1fr)) 44px; gap: 6px; }
+      .slot { min-height: 74px; border-radius: 12px; }
+      .slot b { font-size: 15px; }
+      .slot span { font-size: 11px; }
+      .wheel-row { grid-template-columns: 1fr; gap: 6px; }
+      .wheel-options { gap: 2px; }
+      .wheel-options button { font-size: 15px; min-height: 38px; }
+      .segmented button { min-width: 68px; }
 
-      .progression-slots {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .screen-pair { gap: 12px; }
+      .screen-pair .device:nth-child(2) { margin-top: 40px; }
+      .device.small { border-radius: 30px; padding: 5px; }
+      .device.small img { border-radius: 25px; }
 
-      .footer-cta {
-        padding-top: 28px;
-      }
+      .footer { padding-top: 72px; }
+      .footer-links { margin-top: 64px; }
+    }
+
+    @media (max-width: 360px) {
+      .brand span { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html {
-        scroll-behavior: auto;
-      }
+      html { scroll-behavior: auto; }
 
       *,
       *::before,
@@ -838,231 +1112,279 @@
         transition-duration: .01ms !important;
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
+        animation-delay: 0s !important;
       }
 
-      .button:hover,
-      .gallery figure:hover img {
-        transform: none;
-      }
+      .js .reveal { transform: none; }
     }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="skip">跳到主要內容</a>
 
-  <nav class="nav" aria-label="主要導覽">
-    <div class="nav-inner">
-      <a class="brand" href="#top" aria-label="ScaleScout 首頁">
-        <img src="assets/logo.png" alt="">
+  <nav class="nav" aria-label="主要導覽" data-i18n-aria="navLabel">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="ScaleScout">
+        <svg class="mark" viewBox="19.5 19.5 61 61" aria-hidden="true">
+          <circle class="d-root" cx="37.5" cy="62.5" r="18"/>
+          <circle class="d-third" cx="50" cy="50" r="18"/>
+          <circle class="d-fifth" cx="62.5" cy="37.5" r="18"/>
+        </svg>
         <span>ScaleScout</span>
       </a>
       <div class="nav-links">
-        <a href="#features" data-i18n="navFeatures">功能</a>
-        <a href="#screens" data-i18n="navScreens">截圖</a>
-        <a href="https://www.notion.so/ScaleScout-Support-Support-Center-3566bc1169b580049717cb8ea05bbc2f?source=copy_link" data-i18n="navSupport">支援中心</a>
-        <button class="language-toggle" type="button" data-lang-toggle onclick="window.toggleScaleScoutLanguage && window.toggleScaleScoutLanguage()" aria-label="Switch language">EN</button>
+        <a class="text-link" href="#try" data-i18n="navTry">試玩</a>
+        <a class="text-link" href="#features" data-i18n="navFeatures">功能</a>
+        <a class="text-link" href="#screens" data-i18n="navScreens">截圖</a>
+        <a class="text-link" href="https://www.notion.so/ScaleScout-Support-Support-Center-3566bc1169b580049717cb8ea05bbc2f?source=copy_link" data-i18n="navSupport">支援中心</a>
+        <button class="chip-button" type="button" data-lang-toggle aria-label="Switch to English">EN</button>
         <a class="nav-cta" href="https://apps.apple.com/tw/app/scalescout/id6766290026">App Store</a>
       </div>
     </div>
   </nav>
 
   <header class="hero" id="top">
-    <div class="hero-inner">
+    <div class="wrap hero-inner">
       <div class="hero-content">
-        <div class="eyebrow">Chord finder for musicians</div>
+        <div class="eyebrow"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span data-i18n="eyebrow">給音樂人的和弦查找工具</span></div>
         <h1 data-i18n="heroTitle">音樂人的快速和聲夥伴。</h1>
         <p class="hero-copy" data-i18n="heroCopy">ScaleScout 把調性、級數、根音、和弦性質、延伸音、轉位與組成音放在同一個清楚畫面裡，讓你在寫歌、練琴或分析和聲時，馬上找到答案。</p>
-        <div class="actions" aria-label="主要操作">
-          <a class="button primary" href="https://apps.apple.com/tw/app/scalescout/id6766290026" data-i18n="appStoreView">在 App Store 查看</a>
-          <a class="button secondary" href="#features" data-i18n="exploreFeatures">探索功能</a>
+        <div class="actions">
+          <a class="button primary" href="https://apps.apple.com/tw/app/scalescout/id6766290026">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.9-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.27z"/></svg>
+            <span data-i18n="appStoreView">在 App Store 下載</span>
+          </a>
+          <a class="button secondary" href="#try" data-i18n="tryIt">先在這裡試玩</a>
         </div>
-        <div class="quick-facts" aria-label="產品重點">
+        <div class="quick-facts">
           <div class="fact">
             <strong data-i18n="factOneTitle">級數與根音雙模式</strong>
-            <span data-i18n="factOneText">可在 Roman numeral 與絕對音思考間切換</span>
+            <span data-i18n="factOneText">在羅馬級數與絕對音名之間切換</span>
           </div>
           <div class="fact">
-            <strong>Major / Minor</strong>
-            <span data-i18n="factTwoText">支援 12 個根音與大小調情境</span>
+            <strong data-i18n="factTwoTitle">12 個調 · 大小調</strong>
+            <span data-i18n="factTwoText">延伸音一路到 13，支援轉位</span>
           </div>
           <div class="fact">
-            <strong>iPhone / iPad</strong>
-            <span data-i18n="factThreeText">iOS 17.0+，支援英文與繁體中文</span>
+            <strong>iPhone · iPad</strong>
+            <span data-i18n="factThreeText">iOS 17.0+，英文與繁體中文</span>
           </div>
         </div>
       </div>
 
-      <div class="hero-visual" aria-label="ScaleScout App 畫面預覽">
-        <img class="hero-logo" src="assets/logo.png" alt="ScaleScout logo">
-        <div class="phone-stack">
-          <img class="phone-shot back" src="assets/screen-1.png" alt="ScaleScout 主畫面顯示 C 和弦與組成音">
-          <img class="phone-shot front" src="assets/screen-2.png" alt="ScaleScout 顯示 Dmaj13 和弦與延伸音">
+      <div class="hero-visual">
+        <svg class="mark hero-mark" viewBox="19.5 19.5 61 61" aria-hidden="true">
+          <circle class="d-root" cx="37.5" cy="62.5" r="18"/>
+          <circle class="d-third" cx="50" cy="50" r="18"/>
+          <circle class="d-fifth" cx="62.5" cy="37.5" r="18"/>
+        </svg>
+        <div class="device">
+          <img src="assets/screens/01-progression.png" width="880" height="1912" alt="ScaleScout 主畫面：C 大調中的 G7，下方是 C、G、Am、F 四格和弦進行" data-i18n-alt="heroAlt">
+        </div>
+        <div class="float-card one" aria-hidden="true">
+          <span class="note">D</span>
+          <div>Dm9<small>ii9</small></div>
+        </div>
+        <div class="float-card two" aria-hidden="true">
+          <span class="note ext">B</span>
+          <div>Cmaj7<small>Imaj7</small></div>
         </div>
       </div>
     </div>
   </header>
 
   <main id="main">
+    <section class="section panel" id="try">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <div>
+            <p class="kicker" data-i18n="tryKicker">現在就試試</p>
+            <h2 data-i18n="tryTitle">選一個級數，和弦就出現。</h2>
+          </div>
+          <p class="section-lede" data-i18n="tryLede">這是 App 核心流程的網頁版縮影：選調性、選級數、加上延伸音，再把它放進四格和弦進行。換調時，進行會自動移調。</p>
+        </div>
+
+        <div class="playground reveal" id="playground">
+          <div class="pg-top">
+            <div class="key-select">
+              <select id="pg-key" aria-label="調性" data-i18n-aria="keyLabel"></select>
+            </div>
+            <div class="segmented" role="group" aria-label="調式" data-i18n-aria="modeLabel">
+              <button type="button" data-mode="major" aria-pressed="true" data-i18n="major">大調</button>
+              <button type="button" data-mode="minor" aria-pressed="false" data-i18n="minor">小調</button>
+            </div>
+          </div>
+
+          <div class="pg-display" aria-live="polite">
+            <div class="chord-name" id="pg-name">G7</div>
+            <div class="chord-roman" id="pg-roman">V7</div>
+            <div class="note-row" id="pg-notes"></div>
+          </div>
+
+          <div class="pg-panel">
+            <div class="slots">
+              <div id="pg-slots" style="display:contents"></div>
+              <div class="slot-actions">
+                <button class="icon-btn" id="pg-add" type="button" aria-label="加入和弦進行" data-i18n-aria="addLabel">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+                <button class="icon-btn danger" id="pg-clear" type="button" aria-label="清除和弦進行" data-i18n-aria="clearLabel">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="wheel">
+              <div class="wheel-row">
+                <span data-i18n="degreeLabel">級數</span>
+                <div class="wheel-options" id="pg-degrees" role="group" aria-label="級數" data-i18n-aria="degreeLabel"></div>
+              </div>
+              <div class="wheel-row">
+                <span data-i18n="extLabel">延伸音</span>
+                <div class="wheel-options ext" id="pg-exts" role="group" aria-label="延伸音" data-i18n-aria="extLabel"></div>
+              </div>
+            </div>
+            <p class="pg-note" data-i18n="pgNote">點一下格子可以叫回那個和弦。App 裡還有和弦性質、轉位與根音模式。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="features">
-      <div class="section-inner">
+      <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <p class="kicker">Core Features</p>
-            <h2 data-i18n="featuresTitle">不只是查和弦名，而是看懂它在調性裡的角色。</h2>
+            <p class="kicker" data-i18n="featuresKicker">核心功能</p>
+            <h2 data-i18n="featuresTitle">不只查和弦名，更看懂它在調性裡的角色。</h2>
           </div>
-          <p class="section-lede" data-i18n="featuresLede">ScaleScout 適合放在樂器旁、DAW 旁或課堂筆記旁。它的任務很明確：快速回答「這是什麼和弦」、「它是第幾級」、「它有哪些音」。</p>
+          <p class="section-lede" data-i18n="featuresLede">放在樂器旁、DAW 旁或課堂筆記旁。ScaleScout 的任務很明確：快速回答「這是什麼和弦」、「它是第幾級」、「它有哪些音」。</p>
         </div>
 
         <div class="feature-grid">
           <article class="feature reveal">
-            <div class="feature-mark">I</div>
+            <span class="note">I</span>
             <h3 data-i18n="featureOneTitle">級數找和弦</h3>
-            <p data-i18n="featureOneText">選擇 I 到 VII，ScaleScout 會依照目前 key / mode 算出對應根音與和弦名稱，適合用級數寫 progression。</p>
+            <p data-i18n="featureOneText">選擇 I 到 VII，ScaleScout 依目前的調性與調式算出根音與和弦名稱，最適合用級數寫和弦進行。</p>
           </article>
           <article class="feature reveal">
-            <div class="feature-mark">D</div>
-            <h3 data-i18n="featureTwoTitle">絕對根音分析</h3>
-            <p data-i18n="featureTwoText">直接選 C、D、Eb 等根音，App 會反推它在目前調性中的功能，包含 bII、#IV 這類變化音級。</p>
+            <span class="note blue">#</span>
+            <h3 data-i18n="featureTwoTitle">根音分析</h3>
+            <p data-i18n="featureTwoText">直接選 C、D、Eb 等根音，App 反推它在調性中的功能，連 bII、#IV 這類變化音級都標得出來。</p>
           </article>
           <article class="feature reveal">
-            <div class="feature-mark">7</div>
+            <span class="note ext">13</span>
             <h3 data-i18n="featureThreeTitle">延伸音探索</h3>
-            <p data-i18n="featureThreeText">支援 7、9、11、13，能快速查看高階和弦堆疊後的組成音，適合爵士、R&B、Neo-soul 與流行編曲。</p>
+            <p data-i18n="featureThreeText">支援 7、9、11、13，快速看見高階和弦的組成音，適合爵士、R&amp;B、Neo-soul 與流行編曲。</p>
           </article>
           <article class="feature reveal">
-            <div class="feature-mark">/</div>
+            <span class="note tone">/</span>
             <h3 data-i18n="featureFourTitle">轉位與低音</h3>
-            <p data-i18n="featureFourText">Root、1st、2nd、3rd inversion 依和弦音數自動限制，並以 slash chord 顯示低音變化。</p>
+            <p data-i18n="featureFourText">原位、一轉、二轉、三轉依和弦音數自動限制，低音改變時以 D7/F# 這樣的斜線和弦顯示。</p>
           </article>
           <article class="feature reveal">
-            <div class="feature-mark">•</div>
-            <h3 data-i18n="featureFiveTitle">組成音視覺化</h3>
-            <p data-i18n="featureFiveText">用顏色區分低音、基本和弦音與延伸音，初學者也能一眼理解 Cmaj9 或 Dm13 的音名結構。</p>
+            <span class="note">•</span>
+            <h3 data-i18n="featureFiveTitle">組成音一眼看懂</h3>
+            <p data-i18n="featureFiveText">陶土色是根音、綠色是三音與五音、沙色是延伸音。Cmaj9 或 Dm13 的結構，用顏色就能讀出來。</p>
           </article>
           <article class="feature reveal">
-            <div class="feature-mark">↔</div>
-            <h3 data-i18n="featureSixTitle">四格進行軌道</h3>
-            <p data-i18n="featureSixText">最多儲存四個 chord slot，切換 key 或 mode 時自動移調，快速比較同一組進行在不同調上的結果。</p>
+            <span class="note tone">4</span>
+            <h3 data-i18n="featureSixTitle">四格和弦進行</h3>
+            <p data-i18n="featureSixText">最多存四個和弦，切換調性或調式時自動移調，快速比較同一組進行在不同調上的樣子。</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section dark">
-      <div class="section-inner mode-showcase">
-        <div class="copy-list">
-          <div class="copy-item reveal">
-            <b>1</b>
-            <div>
-              <h3 data-i18n="stepOneTitle">先選調性</h3>
-              <p data-i18n="stepOneText">從 12 個根音與 Major / Natural Minor 開始，建立當下的和聲語境。</p>
-            </div>
-          </div>
-          <div class="copy-item reveal">
-            <b>2</b>
-            <div>
-              <h3 data-i18n="stepTwoTitle">用級數或根音思考</h3>
-              <p data-i18n="stepTwoText">Degree 模式適合創作 progression；Note 模式適合分析已知和弦在調性裡的位置。</p>
-            </div>
-          </div>
-          <div class="copy-item reveal">
-            <b>3</b>
-            <div>
-              <h3 data-i18n="stepThreeTitle">加上性質、延伸與轉位</h3>
-              <p data-i18n="stepThreeText">None、maj、m、sus、dim、aug 與 7 到 13 的延伸音，能在同一個流程中快速試聽和聲想法。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="screen-row reveal">
-          <img src="assets/screen-4.png" alt="ScaleScout 根音選單畫面">
-          <img src="assets/screen-2.png" alt="ScaleScout Dmaj13 和弦分析畫面">
-        </div>
-      </div>
-    </section>
-
-    <section class="section soft">
-      <div class="section-inner workflow">
+    <section class="section panel">
+      <div class="wrap how">
         <div class="reveal">
-          <p class="kicker">Progression Sketchpad</p>
-          <h2 data-i18n="progressionTitle">把短句靈感先留下，再一鍵換到別的調。</h2>
-          <p class="section-lede" style="margin-top: 18px;" data-i18n="progressionLede">四格軌道不是要取代完整編曲工具，而是讓你在手機上快速草擬 I - V - vi - IV、ii - V - I 或任何當下想到的和弦進行。</p>
+          <p class="kicker" data-i18n="howKicker">三步驟</p>
+          <h2 data-i18n="howTitle">顏色就是樂理。</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="note">1</span>
+              <div>
+                <h3 data-i18n="stepOneTitle">先選調性</h3>
+                <p data-i18n="stepOneText">從 12 個根音與大調／自然小調開始，建立當下的和聲語境。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="note tone">2</span>
+              <div>
+                <h3 data-i18n="stepTwoTitle">用級數或根音思考</h3>
+                <p data-i18n="stepTwoText">級數模式適合創作和弦進行；音名模式適合分析已知和弦在調性裡的位置。</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="note ext">3</span>
+              <div>
+                <h3 data-i18n="stepThreeTitle">加上性質、延伸與轉位</h3>
+                <p data-i18n="stepThreeText">maj、m、sus、dim、aug 與 7 到 13 的延伸音，都在同一個滾輪流程裡完成。</p>
+              </div>
+            </div>
+          </div>
+          <div class="legend">
+            <span><i></i><span data-i18n="legendRoot">根音／低音</span></span>
+            <span><i class="l-tone"></i><span data-i18n="legendTone">三音・五音</span></span>
+            <span><i class="l-ext"></i><span data-i18n="legendExt">延伸音</span></span>
+            <span><i class="l-blue"></i><span data-i18n="legendBlue">非調內和弦</span></span>
+          </div>
         </div>
 
-        <div class="progression-demo reveal" aria-label="和弦進行自動移調示意">
-          <div class="progression-head">
-            <span>Saved progression</span>
-            <span>C Major</span>
+        <div class="screen-pair reveal">
+          <div class="device small">
+            <img src="assets/screens/02-extensions.png" width="880" height="1912" loading="lazy" alt="G13 的七個組成音，以顏色區分根音、和弦音與延伸音" data-i18n-alt="altExtensions">
           </div>
-          <div class="progression-slots">
-            <div class="slot filled">I</div>
-            <div class="slot filled">V</div>
-            <div class="slot filled">vi</div>
-            <div class="slot filled">IV</div>
-          </div>
-          <div class="transpose">
-            <div class="transpose-row">
-              <span>C</span>
-              <div class="mini-chords" aria-label="C Major 和弦">
-                <span class="pill">C</span>
-                <span class="pill">G</span>
-                <span class="pill">Am</span>
-                <span class="pill">F</span>
-              </div>
-            </div>
-            <div class="transpose-row">
-              <span>G</span>
-              <div class="mini-chords" aria-label="G Major 和弦">
-                <span class="pill">G</span>
-                <span class="pill">D</span>
-                <span class="pill">Em</span>
-                <span class="pill">C</span>
-              </div>
-            </div>
+          <div class="device small">
+            <img src="assets/screens/04-note-mode.png" width="880" height="1912" loading="lazy" alt="音名模式下的 D7/F#，以灰藍色標示非調內和弦" data-i18n-alt="altNoteMode">
           </div>
         </div>
       </div>
     </section>
 
     <section class="section" id="screens">
-      <div class="section-inner">
+      <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <p class="kicker">App Screens</p>
-            <h2 data-i18n="screensTitle">乾淨、快速、樂手友善的手機工具。</h2>
+            <p class="kicker" data-i18n="screensKicker">App 畫面</p>
+            <h2 data-i18n="screensTitle">安靜、溫暖，專心在和聲上。</h2>
           </div>
-          <p class="section-lede" data-i18n="screensLede">截圖保留 App 原本的白色工具感，搭配黑色頁面空間與品牌色，讓產品畫面成為介紹頁的主角。</p>
+          <p class="section-lede" data-i18n="screensLede">米白紙色的介面、大地色的組成音，加上底部的滾輪與和弦進行。所有資訊都在一個畫面裡，不用切換頁籤。</p>
         </div>
 
         <div class="gallery">
           <figure class="reveal">
-            <img src="assets/screen-1.png" alt="ScaleScout 主畫面顯示 C 和弦">
-            <figcaption data-i18n="captionOne">快速找到你要的和弦</figcaption>
+            <div class="device small"><img src="assets/screens/01-progression.png" width="880" height="1912" loading="lazy" alt="四格和弦進行 C、G、Am、F" data-i18n-alt="altProgression"></div>
+            <figcaption data-i18n="captionOne">建立四格和弦進行</figcaption>
           </figure>
           <figure class="reveal">
-            <img src="assets/screen-2.png" alt="ScaleScout 顯示 Dmaj13">
-            <figcaption data-i18n="captionTwo">查看延伸音與組成音</figcaption>
+            <div class="device small"><img src="assets/screens/02-extensions.png" width="880" height="1912" loading="lazy" alt="G13 與延伸音" data-i18n-alt="altG13"></div>
+            <figcaption data-i18n="captionTwo">一眼看懂延伸音</figcaption>
           </figure>
           <figure class="reveal">
-            <img src="assets/screen-4.png" alt="ScaleScout 根音選擇清單">
-            <figcaption data-i18n="captionThree">在任意調性中分析根音功能</figcaption>
+            <div class="device small"><img src="assets/screens/03-keys.png" width="880" height="1912" loading="lazy" alt="12 個調的選單" data-i18n-alt="altKeys"></div>
+            <figcaption data-i18n="captionThree">12 個調隨手切換</figcaption>
           </figure>
           <figure class="reveal">
-            <img src="assets/screen-3.png" alt="ScaleScout 設定與支援畫面">
-            <figcaption data-i18n="captionFour">雙語、支援與隱私資訊</figcaption>
+            <div class="device small"><img src="assets/screens/04-note-mode.png" width="880" height="1912" loading="lazy" alt="D7/F# 一轉" data-i18n-alt="altD7"></div>
+            <figcaption data-i18n="captionFour">分析轉位與非調內和弦</figcaption>
+          </figure>
+          <figure class="reveal">
+            <div class="device small"><img src="assets/screens/05-minor.png" width="880" height="1912" loading="lazy" alt="A 小調中的 E7" data-i18n-alt="altMinor"></div>
+            <figcaption data-i18n="captionFive">小調裡的和聲功能</figcaption>
           </figure>
         </div>
       </div>
     </section>
 
-    <section class="section soft">
-      <div class="section-inner">
+    <section class="section panel">
+      <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <p class="kicker">For Musicians</p>
+            <p class="kicker" data-i18n="audienceKicker">給誰用</p>
             <h2 data-i18n="audienceTitle">適合創作、練習、教學與和聲分析。</h2>
           </div>
-          <p class="section-lede" data-i18n="audienceLede">ScaleScout 不宣稱自動作曲，也不假裝是 DAW。它專注在一件事：讓和聲資訊變得更快、更清楚、更容易帶著走。</p>
+          <p class="section-lede" data-i18n="audienceLede">ScaleScout 不宣稱自動作曲，也不假裝是 DAW。它專注在一件事：讓和聲資訊更快、更清楚、更容易帶著走。</p>
         </div>
 
         <div class="audience-grid">
@@ -1075,8 +1397,8 @@
             <span data-i18n="audienceTwoText">快速看見高階和弦音，安排 voicing 更直覺。</span>
           </div>
           <div class="audience reveal">
-            <strong data-i18n="audienceThreeTitle">寫歌者</strong>
-            <span data-i18n="audienceThreeText">用四格 slot 暫存 progression，保留靈感草稿。</span>
+            <strong data-i18n="audienceThreeTitle">寫歌的人</strong>
+            <span data-i18n="audienceThreeText">用四格和弦進行暫存靈感，不怕忘記。</span>
           </div>
           <div class="audience reveal">
             <strong data-i18n="audienceFourTitle">音樂學生</strong>
@@ -1084,159 +1406,415 @@
           </div>
           <div class="audience reveal">
             <strong data-i18n="audienceFiveTitle">編曲者</strong>
-            <span data-i18n="audienceFiveText">比較調內、非調內與 extension 的色彩差異。</span>
+            <span data-i18n="audienceFiveText">比較調內、非調內與延伸音的色彩差異。</span>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="section dark">
-      <div class="section-inner">
-        <div class="footer-cta reveal">
-          <div>
-            <p class="kicker">ScaleScout</p>
-            <h2 data-i18n="footerTitle">把和聲字典放進口袋，讓下一個和弦更快出現。</h2>
-          </div>
-          <a class="button primary" style="background:white;color:var(--dark-ink);" href="https://apps.apple.com/tw/app/scalescout/id6766290026" data-i18n="downloadScaleScout">下載 ScaleScout</a>
-        </div>
-        <div class="footer-links">
-          <a href="https://apps.apple.com/tw/app/scalescout/id6766290026">App Store</a>
-          <a href="https://www.notion.so/Privacy-Policy-3566bc1169b58040ab4bd5b97f3947a3?source=copy_link" data-i18n="privacy">隱私權政策</a>
-          <a href="https://www.notion.so/ScaleScout-Support-Support-Center-3566bc1169b580049717cb8ea05bbc2f?source=copy_link" data-i18n="navSupport">支援中心</a>
-        </div>
-        <p class="fine-print">ScaleScout v1.1 · iPhone / iPad · iOS 17.0+ · Made by Toby Wu</p>
       </div>
     </section>
   </main>
 
+  <footer class="footer always-dark">
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-cta reveal">
+          <p class="kicker">ScaleScout</p>
+          <h2 data-i18n="footerTitle">把和聲字典放進口袋，讓下一個和弦更快出現。</h2>
+          <a class="button primary" href="https://apps.apple.com/tw/app/scalescout/id6766290026">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.9-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.27z"/></svg>
+            <span data-i18n="downloadScaleScout">下載 ScaleScout</span>
+          </a>
+        </div>
+        <svg class="mark footer-mark" viewBox="19.5 19.5 61 61" aria-hidden="true">
+          <circle class="d-root" cx="37.5" cy="62.5" r="18"/>
+          <circle class="d-third" cx="50" cy="50" r="18"/>
+          <circle class="d-fifth" cx="62.5" cy="37.5" r="18"/>
+        </svg>
+      </div>
+      <div class="footer-links">
+        <a href="https://apps.apple.com/tw/app/scalescout/id6766290026">App Store</a>
+        <a href="https://www.notion.so/Privacy-Policy-3566bc1169b58040ab4bd5b97f3947a3?source=copy_link" data-i18n="privacy">隱私權政策</a>
+        <a href="https://www.notion.so/ScaleScout-Support-Support-Center-3566bc1169b580049717cb8ea05bbc2f?source=copy_link" data-i18n="navSupport">支援中心</a>
+      </div>
+      <p class="fine-print">ScaleScout v1.2 · iPhone / iPad · iOS 17.0+ · Made by Toby Wu</p>
+    </div>
+  </footer>
+
   <script>
+    document.documentElement.classList.add('js');
+
     const translations = {
       zh: {
         title: 'ScaleScout｜音樂人的快速和聲夥伴',
         description: 'ScaleScout 是音樂人的快速和聲夥伴，可用級數或根音查找和弦、查看組成音，並快速建立和弦進行。',
         skip: '跳到主要內容',
+        navLabel: '主要導覽',
+        navTry: '試玩',
         navFeatures: '功能',
         navScreens: '截圖',
         navSupport: '支援中心',
-        heroTitle: '快速和聲夥伴。',
+        eyebrow: '給音樂人的和弦查找工具',
+        heroTitle: '音樂人的快速和聲夥伴。',
         heroCopy: 'ScaleScout 把調性、級數、根音、和弦性質、延伸音、轉位與組成音放在同一個清楚畫面裡，讓你在寫歌、練琴或分析和聲時，馬上找到答案。',
-        appStoreView: '在 App Store 查看',
-        exploreFeatures: '探索功能',
+        heroAlt: 'ScaleScout 主畫面：C 大調中的 G7，下方是 C、G、Am、F 四格和弦進行',
+        appStoreView: '在 App Store 下載',
+        tryIt: '先在這裡試玩',
         factOneTitle: '級數與根音雙模式',
-        factOneText: '可在 Roman numeral 與絕對音思考間切換',
-        factTwoText: '支援 12 個根音與大小調情境',
-        factThreeText: 'iOS 17.0+，支援英文與繁體中文',
-        featuresTitle: '不只是查和弦名，而是看懂它在調性裡的角色。',
-        featuresLede: 'ScaleScout 適合放在樂器旁、DAW 旁或課堂筆記旁。它的任務很明確：快速回答「這是什麼和弦」、「它是第幾級」、「它有哪些音」。',
+        factOneText: '在羅馬級數與絕對音名之間切換',
+        factTwoTitle: '12 個調 · 大小調',
+        factTwoText: '延伸音一路到 13，支援轉位',
+        factThreeText: 'iOS 17.0+，英文與繁體中文',
+        tryKicker: '現在就試試',
+        tryTitle: '選一個級數，和弦就出現。',
+        tryLede: '這是 App 核心流程的網頁版縮影：選調性、選級數、加上延伸音，再把它放進四格和弦進行。換調時，進行會自動移調。',
+        keyLabel: '調性',
+        modeLabel: '調式',
+        major: '大調',
+        minor: '小調',
+        degreeLabel: '級數',
+        extLabel: '延伸音',
+        extNone: '無',
+        addLabel: '加入和弦進行',
+        clearLabel: '清除和弦進行',
+        slotsFull: '四格已滿，先清除再加入',
+        emptySlot: '空的格子',
+        pgNote: '點一下格子可以叫回那個和弦。App 裡還有和弦性質、轉位與根音模式。',
+        featuresKicker: '核心功能',
+        featuresTitle: '不只查和弦名，更看懂它在調性裡的角色。',
+        featuresLede: '放在樂器旁、DAW 旁或課堂筆記旁。ScaleScout 的任務很明確：快速回答「這是什麼和弦」、「它是第幾級」、「它有哪些音」。',
         featureOneTitle: '級數找和弦',
-        featureOneText: '選擇 I 到 VII，ScaleScout 會依照目前 key / mode 算出對應根音與和弦名稱，適合用級數寫 progression。',
-        featureTwoTitle: '絕對根音分析',
-        featureTwoText: '直接選 C、D、Eb 等根音，App 會反推它在目前調性中的功能，包含 bII、#IV 這類變化音級。',
+        featureOneText: '選擇 I 到 VII，ScaleScout 依目前的調性與調式算出根音與和弦名稱，最適合用級數寫和弦進行。',
+        featureTwoTitle: '根音分析',
+        featureTwoText: '直接選 C、D、Eb 等根音，App 反推它在調性中的功能，連 bII、#IV 這類變化音級都標得出來。',
         featureThreeTitle: '延伸音探索',
-        featureThreeText: '支援 7、9、11、13，能快速查看高階和弦堆疊後的組成音，適合爵士、R&B、Neo-soul 與流行編曲。',
+        featureThreeText: '支援 7、9、11、13，快速看見高階和弦的組成音，適合爵士、R&B、Neo-soul 與流行編曲。',
         featureFourTitle: '轉位與低音',
-        featureFourText: 'Root、1st、2nd、3rd inversion 依和弦音數自動限制，並以 slash chord 顯示低音變化。',
-        featureFiveTitle: '組成音視覺化',
-        featureFiveText: '用顏色區分低音、基本和弦音與延伸音，初學者也能一眼理解 Cmaj9 或 Dm13 的音名結構。',
-        featureSixTitle: '四格進行軌道',
-        featureSixText: '最多儲存四個 chord slot，切換 key 或 mode 時自動移調，快速比較同一組進行在不同調上的結果。',
+        featureFourText: '原位、一轉、二轉、三轉依和弦音數自動限制，低音改變時以 D7/F# 這樣的斜線和弦顯示。',
+        featureFiveTitle: '組成音一眼看懂',
+        featureFiveText: '陶土色是根音、綠色是三音與五音、沙色是延伸音。Cmaj9 或 Dm13 的結構，用顏色就能讀出來。',
+        featureSixTitle: '四格和弦進行',
+        featureSixText: '最多存四個和弦，切換調性或調式時自動移調，快速比較同一組進行在不同調上的樣子。',
+        howKicker: '三步驟',
+        howTitle: '顏色就是樂理。',
         stepOneTitle: '先選調性',
-        stepOneText: '從 12 個根音與 Major / Natural Minor 開始，建立當下的和聲語境。',
+        stepOneText: '從 12 個根音與大調／自然小調開始，建立當下的和聲語境。',
         stepTwoTitle: '用級數或根音思考',
-        stepTwoText: 'Degree 模式適合創作 progression；Note 模式適合分析已知和弦在調性裡的位置。',
+        stepTwoText: '級數模式適合創作和弦進行；音名模式適合分析已知和弦在調性裡的位置。',
         stepThreeTitle: '加上性質、延伸與轉位',
-        stepThreeText: 'None、maj、m、sus、dim、aug 與 7 到 13 的延伸音，能在同一個流程中快速試聽和聲想法。',
-        progressionTitle: '把短句靈感先留下，再一鍵換到別的調。',
-        progressionLede: '四格軌道不是要取代完整編曲工具，而是讓你在手機上快速草擬 I - V - vi - IV、ii - V - I 或任何當下想到的和弦進行。',
-        screensTitle: '乾淨、快速、樂手友善的手機工具。',
-        screensLede: '截圖保留 App 原本的白色工具感，搭配黑色頁面空間與品牌色，讓產品畫面成為介紹頁的主角。',
-        captionOne: '快速找到你要的和弦',
-        captionTwo: '查看延伸音與組成音',
-        captionThree: '在任意調性中分析根音功能',
-        captionFour: '雙語、支援與隱私資訊',
+        stepThreeText: 'maj、m、sus、dim、aug 與 7 到 13 的延伸音，都在同一個滾輪流程裡完成。',
+        legendRoot: '根音／低音',
+        legendTone: '三音・五音',
+        legendExt: '延伸音',
+        legendBlue: '非調內和弦',
+        altExtensions: 'G13 的七個組成音，以顏色區分根音、和弦音與延伸音',
+        altNoteMode: '音名模式下的 D7/F#，以灰藍色標示非調內和弦',
+        screensKicker: 'App 畫面',
+        screensTitle: '安靜、溫暖，專心在和聲上。',
+        screensLede: '米白紙色的介面、大地色的組成音，加上底部的滾輪與和弦進行。所有資訊都在一個畫面裡，不用切換頁籤。',
+        captionOne: '建立四格和弦進行',
+        captionTwo: '一眼看懂延伸音',
+        captionThree: '12 個調隨手切換',
+        captionFour: '分析轉位與非調內和弦',
+        captionFive: '小調裡的和聲功能',
+        altProgression: '四格和弦進行 C、G、Am、F',
+        altG13: 'G13 與延伸音',
+        altKeys: '12 個調的選單',
+        altD7: 'D7/F# 一轉',
+        altMinor: 'A 小調中的 E7',
+        audienceKicker: '給誰用',
         audienceTitle: '適合創作、練習、教學與和聲分析。',
-        audienceLede: 'ScaleScout 不宣稱自動作曲，也不假裝是 DAW。它專注在一件事：讓和聲資訊變得更快、更清楚、更容易帶著走。',
+        audienceLede: 'ScaleScout 不宣稱自動作曲，也不假裝是 DAW。它專注在一件事：讓和聲資訊更快、更清楚、更容易帶著走。',
         audienceOneTitle: '吉他手',
         audienceOneText: '確認和弦音、轉位與下一個可用和弦。',
         audienceTwoTitle: '鍵盤手',
         audienceTwoText: '快速看見高階和弦音，安排 voicing 更直覺。',
-        audienceThreeTitle: '寫歌者',
-        audienceThreeText: '用四格 slot 暫存 progression，保留靈感草稿。',
+        audienceThreeTitle: '寫歌的人',
+        audienceThreeText: '用四格和弦進行暫存靈感，不怕忘記。',
         audienceFourTitle: '音樂學生',
         audienceFourText: '把羅馬級數、和弦名稱與組成音連在一起。',
         audienceFiveTitle: '編曲者',
-        audienceFiveText: '比較調內、非調內與 extension 的色彩差異。',
+        audienceFiveText: '比較調內、非調內與延伸音的色彩差異。',
         footerTitle: '把和聲字典放進口袋，讓下一個和弦更快出現。',
         downloadScaleScout: '下載 ScaleScout',
-        privacy: '隱私權政策'
+        privacy: '隱私權政策',
+        langToggle: 'EN',
+        langToggleLabel: 'Switch to English'
       },
       en: {
         title: 'ScaleScout | A fast harmony companion for musicians',
         description: 'ScaleScout is a fast harmony companion for musicians. Find chords by scale degree or root note, view chord tones, and sketch quick progressions.',
         skip: 'Skip to main content',
+        navLabel: 'Main navigation',
+        navTry: 'Try it',
         navFeatures: 'Features',
         navScreens: 'Screens',
-        navSupport: 'Support Center',
+        navSupport: 'Support',
+        eyebrow: 'Chord finder for musicians',
         heroTitle: 'A fast harmony companion for musicians.',
-        heroCopy: 'ScaleScout brings key, scale degree, root note, chord quality, extensions, inversions, and chord tones into one clear view, so you can find answers while writing, practicing, or analyzing harmony.',
-        appStoreView: 'View on App Store',
-        exploreFeatures: 'Explore features',
+        heroCopy: 'ScaleScout brings key, scale degree, root, chord quality, extensions, inversions, and chord tones into one clear view, so you get answers while writing, practicing, or analyzing harmony.',
+        heroAlt: 'ScaleScout main screen: G7 in C major, with a C, G, Am, F progression below',
+        appStoreView: 'Download on the App Store',
+        tryIt: 'Try it here first',
         factOneTitle: 'Degree and root modes',
-        factOneText: 'Switch between Roman numeral thinking and absolute note thinking',
-        factTwoText: 'Explore 12 roots in major and minor contexts',
-        factThreeText: 'iOS 17.0+, with English and Traditional Chinese',
-        featuresTitle: 'More than chord names. Understand each chord’s role in the key.',
-        featuresLede: 'ScaleScout belongs next to your instrument, DAW, or theory notes. Its job is focused: answer what the chord is, which degree it represents, and which tones it contains.',
+        factOneText: 'Switch between Roman numerals and note names',
+        factTwoTitle: '12 keys · major & minor',
+        factTwoText: 'Extensions up to 13, with inversions',
+        factThreeText: 'iOS 17.0+, English and Traditional Chinese',
+        tryKicker: 'Try it now',
+        tryTitle: 'Pick a degree. Get the chord.',
+        tryLede: 'A small web version of the app’s core flow: choose a key, pick a degree, add an extension, then drop it into the four-slot progression. Change the key and the progression transposes.',
+        keyLabel: 'Key',
+        modeLabel: 'Mode',
+        major: 'Major',
+        minor: 'Minor',
+        degreeLabel: 'Degree',
+        extLabel: 'Extension',
+        extNone: 'None',
+        addLabel: 'Add to progression',
+        clearLabel: 'Clear progression',
+        slotsFull: 'All four slots are full. Clear them to add more.',
+        emptySlot: 'Empty slot',
+        pgNote: 'Tap a slot to bring that chord back. The app adds chord quality, inversions, and root-note mode.',
+        featuresKicker: 'Core features',
+        featuresTitle: 'More than chord names. See each chord’s role in the key.',
+        featuresLede: 'Keep it next to your instrument, DAW, or theory notes. ScaleScout answers three questions fast: what is this chord, which degree is it, and which notes does it contain.',
         featureOneTitle: 'Find chords by degree',
-        featureOneText: 'Choose I through VII and ScaleScout calculates the matching root and chord name from the current key and mode.',
+        featureOneText: 'Choose I through VII and ScaleScout works out the root and chord name from the current key and mode.',
         featureTwoTitle: 'Analyze root notes',
-        featureTwoText: 'Pick roots like C, D, or Eb and the app shows their function in the current key, including altered degrees like bII or #IV.',
+        featureTwoText: 'Pick a root like C, D, or Eb and the app shows its function in the key, including altered degrees like bII or #IV.',
         featureThreeTitle: 'Explore extensions',
-        featureThreeText: 'Support for 7, 9, 11, and 13 helps you inspect extended chord tones for jazz, R&B, neo-soul, and pop arranging.',
-        featureFourTitle: 'Inversions and bass notes',
-        featureFourText: 'Root, 1st, 2nd, and 3rd inversions are limited by chord size and displayed as slash chords when the bass changes.',
-        featureFiveTitle: 'Visual chord tones',
-        featureFiveText: 'Color-coded tones separate bass or root notes, chord tones, and extensions, making Cmaj9 or Dm13 easier to read at a glance.',
-        featureSixTitle: 'Four-slot progression track',
-        featureSixText: 'Save up to four chord slots and transpose them automatically when changing key or mode.',
+        featureThreeText: '7, 9, 11, and 13 reveal every tone of an extended chord, ideal for jazz, R&B, neo-soul, and pop arranging.',
+        featureFourTitle: 'Inversions and bass',
+        featureFourText: 'Root, 1st, 2nd, and 3rd inversions are limited by chord size and shown as slash chords like D7/F#.',
+        featureFiveTitle: 'Chord tones at a glance',
+        featureFiveText: 'Terracotta is the root, green the third and fifth, sand the extensions. Read Cmaj9 or Dm13 by color alone.',
+        featureSixTitle: 'Four-slot progression',
+        featureSixText: 'Save up to four chords. Change the key or mode and they transpose automatically.',
+        howKicker: 'Three steps',
+        howTitle: 'The colors are the theory.',
         stepOneTitle: 'Choose a key',
-        stepOneText: 'Start with 12 roots and Major or Natural Minor to set the harmonic context.',
+        stepOneText: 'Start with 12 roots in major or natural minor to set the harmonic context.',
         stepTwoTitle: 'Think by degree or root',
-        stepTwoText: 'Degree mode is ideal for writing progressions. Note mode is ideal for analyzing known chords inside a key.',
-        stepThreeTitle: 'Add quality, extensions, and inversion',
-        stepThreeText: 'None, maj, m, sus, dim, aug, and extensions from 7 to 13 stay in one fast exploration flow.',
-        progressionTitle: 'Capture short ideas, then transpose them instantly.',
-        progressionLede: 'The four-slot track is not a full arranging tool. It is a quick mobile sketchpad for I - V - vi - IV, ii - V - I, or any progression that appears mid-session.',
-        screensTitle: 'Clean, fast, and musician-friendly.',
-        screensLede: 'The page keeps the app screenshots crisp and bright against a dark product space, so the interface stays the main character.',
-        captionOne: 'Find chords instantly',
-        captionTwo: 'View extensions and chord tones',
-        captionThree: 'Analyze root functions in any key',
-        captionFour: 'Bilingual support and privacy links',
+        stepTwoText: 'Degree mode is for writing progressions. Note mode is for analyzing a known chord inside a key.',
+        stepThreeTitle: 'Add quality, extension, inversion',
+        stepThreeText: 'maj, m, sus, dim, aug, and extensions from 7 to 13 all live in one wheel-based flow.',
+        legendRoot: 'Root / bass',
+        legendTone: 'Third · fifth',
+        legendExt: 'Extensions',
+        legendBlue: 'Non-diatonic',
+        altExtensions: 'The seven tones of G13, colored by root, chord tones, and extensions',
+        altNoteMode: 'D7/F# in note mode, marked blue-gray as non-diatonic',
+        screensKicker: 'App screens',
+        screensTitle: 'Calm, warm, and focused on harmony.',
+        screensLede: 'A paper-white interface, earth-toned chord tones, and the wheels and progression at the bottom. Everything sits on one screen, no tabs.',
+        captionOne: 'Sketch a four-chord progression',
+        captionTwo: 'Read extensions at a glance',
+        captionThree: 'Switch between 12 keys',
+        captionFour: 'Analyze inversions and borrowed chords',
+        captionFive: 'Harmony in minor keys',
+        altProgression: 'A C, G, Am, F progression',
+        altG13: 'G13 and its extensions',
+        altKeys: 'The 12-key menu',
+        altD7: 'D7/F# in first inversion',
+        altMinor: 'E7 in A minor',
+        audienceKicker: 'Who it’s for',
         audienceTitle: 'Built for writing, practice, teaching, and analysis.',
-        audienceLede: 'ScaleScout does not claim to compose for you or replace a DAW. It focuses on one thing: making harmony information faster, clearer, and easier to carry.',
+        audienceLede: 'ScaleScout doesn’t claim to compose for you or replace a DAW. It does one thing: make harmony faster, clearer, and easier to carry.',
         audienceOneTitle: 'Guitarists',
-        audienceOneText: 'Check chord tones, inversions, and possible next chords.',
+        audienceOneText: 'Check chord tones, inversions, and the next chord.',
         audienceTwoTitle: 'Keyboardists',
-        audienceTwoText: 'See extended tones quickly and shape voicings with more confidence.',
+        audienceTwoText: 'See extended tones fast and shape voicings with confidence.',
         audienceThreeTitle: 'Songwriters',
-        audienceThreeText: 'Save short progressions in four slots before the idea disappears.',
+        audienceThreeText: 'Park a progression in four slots before the idea fades.',
         audienceFourTitle: 'Music students',
         audienceFourText: 'Connect Roman numerals, chord names, and chord tones.',
         audienceFiveTitle: 'Arrangers',
         audienceFiveText: 'Compare diatonic, altered, and extended chord colors.',
-        footerTitle: 'Put a harmony dictionary in your pocket, and find the next chord faster.',
+        footerTitle: 'Put a harmony dictionary in your pocket and find the next chord faster.',
         downloadScaleScout: 'Download ScaleScout',
-        privacy: 'Privacy Policy'
+        privacy: 'Privacy Policy',
+        langToggle: '中',
+        langToggleLabel: '切換到繁體中文'
       }
     };
 
-    const languageToggle = document.querySelector('[data-lang-toggle]');
+    /* Chord engine: a port of the app's ChordEngine for degree mode with in-key qualities */
+    const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const SHARPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const FLAT_KEYS = {
+      major: new Set(['F', 'Bb', 'Eb', 'Ab', 'Db']),
+      minor: new Set(['D', 'G', 'C', 'F', 'Bb', 'Eb', 'Ab', 'Db'])
+    };
+    const INTERVALS = { major: [0, 2, 4, 5, 7, 9, 11], minor: [0, 2, 3, 5, 7, 8, 10] };
+    const QUALITIES = { major: ['', 'm', 'm', '', '', 'm', 'dim'], minor: ['m', 'dim', '', 'm', 'm', '', ''] };
+    const TRIADS = { '': [0, 4, 7], m: [0, 3, 7], dim: [0, 3, 6] };
+    const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    const EXTENSIONS = ['none', '7', '9', '11', '13'];
+
+    function extensionIntervals(ext, quality) {
+      const seventh = quality === 'dim' ? 9 : 10;
+      return { none: [], 7: [seventh], 9: [seventh, 14], 11: [seventh, 14, 17], 13: [seventh, 14, 17, 21] }[ext];
+    }
+
+    function chordFor(keyIndex, mode, degree, ext) {
+      const names = FLAT_KEYS[mode].has(KEYS[keyIndex]) ? FLATS : SHARPS;
+      const root = (keyIndex + INTERVALS[mode][degree]) % 12;
+      const quality = QUALITIES[mode][degree];
+      const semitones = TRIADS[quality].concat(extensionIntervals(ext, quality)).map((s) => root + s);
+      const suffix = ext === 'none' ? '' : ext;
+      let roman = ROMAN[degree];
+      if (quality === 'm') roman = roman.toLowerCase();
+      if (quality === 'dim') roman = roman.toLowerCase() + '°';
+      return {
+        name: names[root] + quality + suffix,
+        roman: roman + suffix,
+        notes: semitones.map((s) => names[s % 12])
+      };
+    }
+
+    const state = {
+      key: 0,
+      mode: 'major',
+      degree: 4,
+      ext: '7',
+      slots: [
+        { degree: 0, ext: 'none' },
+        { degree: 4, ext: 'none' },
+        { degree: 5, ext: 'none' },
+        { degree: 3, ext: 'none' }
+      ],
+      activeSlot: -1
+    };
+
+    const el = {
+      key: document.getElementById('pg-key'),
+      name: document.getElementById('pg-name'),
+      roman: document.getElementById('pg-roman'),
+      notes: document.getElementById('pg-notes'),
+      slots: document.getElementById('pg-slots'),
+      degrees: document.getElementById('pg-degrees'),
+      exts: document.getElementById('pg-exts'),
+      add: document.getElementById('pg-add'),
+      clear: document.getElementById('pg-clear'),
+      modes: document.querySelectorAll('[data-mode]')
+    };
+
+    KEYS.forEach((key, index) => {
+      el.key.add(new Option(key, String(index)));
+    });
+
     let currentLanguage = 'zh';
+
+    function makeButton(label, pressed, onClick) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.setAttribute('aria-pressed', String(pressed));
+      button.addEventListener('click', onClick);
+      return button;
+    }
+
+    function renderDisplay() {
+      const chord = chordFor(state.key, state.mode, state.degree, state.ext);
+      el.name.textContent = chord.name;
+      el.roman.textContent = chord.roman;
+      el.notes.replaceChildren(...chord.notes.map((note, index) => {
+        const circle = document.createElement('span');
+        circle.className = 'note' + (index === 0 ? '' : index < 3 ? ' tone' : ' ext');
+        circle.style.animationDelay = (index * 45) + 'ms';
+        circle.textContent = note;
+        return circle;
+      }));
+    }
+
+    function renderControls() {
+      const dict = translations[currentLanguage];
+      el.key.value = String(state.key);
+      el.modes.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode));
+      });
+      el.degrees.replaceChildren(...ROMAN.map((label, index) => makeButton(label, index === state.degree, () => {
+        state.degree = index;
+        state.activeSlot = -1;
+        render();
+      })));
+      el.exts.replaceChildren(...EXTENSIONS.map((ext) => makeButton(ext === 'none' ? dict.extNone : ext, ext === state.ext, () => {
+        state.ext = ext;
+        state.activeSlot = -1;
+        render();
+      })));
+    }
+
+    function renderSlots() {
+      const dict = translations[currentLanguage];
+      el.slots.replaceChildren(...state.slots.map((slot, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        if (!slot) {
+          button.className = 'slot empty';
+          button.disabled = true;
+          button.setAttribute('aria-label', dict.emptySlot);
+          return button;
+        }
+        const chord = chordFor(state.key, state.mode, slot.degree, slot.ext);
+        button.className = 'slot' + (index === state.activeSlot ? ' active' : '');
+        const name = document.createElement('b');
+        name.textContent = chord.name;
+        const roman = document.createElement('span');
+        roman.textContent = chord.roman;
+        button.append(name, roman);
+        button.addEventListener('click', () => {
+          state.degree = slot.degree;
+          state.ext = slot.ext;
+          state.activeSlot = index;
+          render();
+        });
+        return button;
+      }));
+      const full = state.slots.every(Boolean);
+      el.add.disabled = full;
+      el.add.title = full ? dict.slotsFull : dict.addLabel;
+      el.clear.disabled = state.slots.every((slot) => !slot);
+    }
+
+    function render() {
+      renderDisplay();
+      renderControls();
+      renderSlots();
+    }
+
+    el.key.addEventListener('change', () => {
+      state.key = Number(el.key.value);
+      render();
+    });
+
+    el.modes.forEach((button) => {
+      button.addEventListener('click', () => {
+        state.mode = button.dataset.mode;
+        render();
+      });
+    });
+
+    el.add.addEventListener('click', () => {
+      const index = state.slots.findIndex((slot) => !slot);
+      if (index === -1) return;
+      state.slots[index] = { degree: state.degree, ext: state.ext };
+      state.activeSlot = index;
+      renderSlots();
+    });
+
+    el.clear.addEventListener('click', () => {
+      state.slots = [null, null, null, null];
+      state.activeSlot = -1;
+      renderSlots();
+    });
+
+    /* Language */
+    const languageToggle = document.querySelector('[data-lang-toggle]');
 
     function getStoredLanguage() {
       try {
-        return window.localStorage && localStorage.getItem('scalescout-language');
+        return localStorage.getItem('scalescout-language');
       } catch (error) {
         return null;
       }
@@ -1244,53 +1822,63 @@
 
     function storeLanguage(language) {
       try {
-        if (window.localStorage) {
-          localStorage.setItem('scalescout-language', language);
-        }
+        localStorage.setItem('scalescout-language', language);
       } catch (error) {
-        // File previews can block storage; language switching should still work.
+        // Storage can be blocked in file previews; switching still works.
       }
     }
 
-    const initialLanguage = getStoredLanguage() || 'zh';
-
     function setLanguage(language) {
-      const dictionary = translations[language];
+      const dict = translations[language];
       currentLanguage = language;
       document.documentElement.lang = language === 'zh' ? 'zh-Hant' : 'en';
-      document.documentElement.dataset.language = language;
-      document.title = dictionary.title;
-      document.querySelector('meta[name="description"]').setAttribute('content', dictionary.description);
-      document.querySelectorAll('[data-i18n]').forEach((element) => {
-        const key = element.dataset.i18n;
-        if (dictionary[key]) {
-          element.textContent = dictionary[key];
-        }
+      document.title = dict.title;
+      document.querySelector('meta[name="description"]').setAttribute('content', dict.description);
+      document.querySelectorAll('[data-i18n]').forEach((node) => {
+        const value = dict[node.dataset.i18n];
+        if (value) node.textContent = value;
       });
-      languageToggle.textContent = language === 'zh' ? 'EN' : '中';
-      languageToggle.setAttribute('aria-label', language === 'zh' ? 'Switch to English' : '切換到繁體中文');
+      document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+        const value = dict[node.dataset.i18nAria];
+        if (value) node.setAttribute('aria-label', value);
+      });
+      document.querySelectorAll('[data-i18n-alt]').forEach((node) => {
+        const value = dict[node.dataset.i18nAlt];
+        if (value) node.setAttribute('alt', value);
+      });
+      languageToggle.textContent = dict.langToggle;
+      languageToggle.setAttribute('aria-label', dict.langToggleLabel);
       storeLanguage(language);
+      render();
     }
 
-    window.toggleScaleScoutLanguage = function toggleScaleScoutLanguage() {
-      const nextLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-      setLanguage(nextLanguage);
-    };
-
-    setLanguage(initialLanguage);
-
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.16 });
-
-    document.querySelectorAll('.reveal').forEach((element) => {
-      revealObserver.observe(element);
+    languageToggle.addEventListener('click', () => {
+      setLanguage(currentLanguage === 'zh' ? 'en' : 'zh');
     });
+
+    const storedLanguage = getStoredLanguage();
+    setLanguage(storedLanguage === 'en' ? 'en' : 'zh');
+
+    /* Nav border on scroll */
+    const nav = document.querySelector('.nav');
+    const updateNav = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+
+    /* Reveal */
+    if ('IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach((node) => revealObserver.observe(node));
+    } else {
+      document.querySelectorAll('.reveal').forEach((node) => node.classList.add('in'));
+    }
   </script>
 </body>
 </html>
